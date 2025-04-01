@@ -30,7 +30,7 @@ URLS = [
     "https://www.lag-izvor.eu/"
 ]
 EMAIL = "objava.natjecaji10@gmail.com"
-PASSWORD = "tvojapppassword"  # Zamijeni s pravim App Passwordom
+PASSWORD = "triqsjwgvpnhmzzt"  # Zamijeni s pravim App Passwordom
 TO_EMAIL = "objava.natjecaji10@gmail.com"
 CHECK_INTERVAL = 60
 REPORT_TIMES = ["12:05", "14:05", "19:05", "21:05"]
