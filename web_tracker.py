@@ -32,8 +32,8 @@ URLS = [
 EMAIL = "objava.natjecaji10@gmail.com"
 PASSWORD = "triqsjwgvpnhmzzt"  # Zamijeni s pravim App Passwordom
 TO_EMAIL = "objava.natjecaji10@gmail.com"
-CHECK_INTERVAL = 60
-REPORT_TIMES = ["12:05", "14:05", "19:05", "21:05"]
+CHECK_INTERVAL = 1200
+REPORT_TIMES = ["12:05", "14:05", "18:05", "21:05"]
 
 try:
     with open('previous_contents.json', 'r') as f:
