@@ -6,7 +6,6 @@ from email.mime.text import MIMEText
 from datetime import datetime
 import json
 
-# Postavke
 URLS = [
     "https://www.opcina-cadjavica.hr/downloads/natjecaj/",
     "https://novi-vinodolski.hr/",
@@ -31,12 +30,11 @@ URLS = [
     "https://www.lag-izvor.eu/"
 ]
 EMAIL = "objava.natjecaji10@gmail.com"
-PASSWORD = "triqsjwgvpnhmzzt"  # Zamijeni s pravim App Passwordom
+PASSWORD = "tvojapppassword"  # Zamijeni s pravim App Passwordom
 TO_EMAIL = "objava.natjecaji10@gmail.com"
-CHECK_INTERVAL = 60  # Provjera svake minute
+CHECK_INTERVAL = 60
 REPORT_TIMES = ["12:05", "14:05", "19:05", "21:05"]
 
-# Učitavanje prethodnog sadržaja iz datoteke
 try:
     with open('previous_contents.json', 'r') as f:
         previous_contents = json.load(f)
@@ -44,8 +42,8 @@ except FileNotFoundError:
     previous_contents = {url: None for url in URLS}
 changes = []
 sent_reports = {time: False for time in REPORT_TIMES}
+last_reset = datetime.now().date()
 
-# Funkcija za dohvaćanje sadržaja stranice
 def get_page_content(url):
     try:
         response = requests.get(url)
@@ -56,13 +54,11 @@ def get_page_content(url):
         print(f"Greška kod {url}: {str(e)}")
         return f"Greška: {str(e)}"
 
-# Funkcija za slanje e-maila
 def send_email(subject, body):
     msg = MIMEText(body)
     msg['Subject'] = subject
     msg['From'] = EMAIL
     msg['To'] = TO_EMAIL
-
     try:
         with smtplib.SMTP('smtp.gmail.com', 587) as server:
             server.starttls()
@@ -72,28 +68,21 @@ def send_email(subject, body):
     except Exception as e:
         print(f"Greška pri slanju e-maila: {e}")
 
-# Inicijalizacija početnog sadržaja
 print("Početak inicijalizacije...")
 for url in URLS:
     if previous_contents.get(url) is None:
         previous_contents[url] = get_page_content(url)
 
-# Provjera propuštenih izvještaja pri pokretanju
-current_time = datetime.now()
-current_time_str = current_time.strftime("%H:%M")
-print(f"Pokretanje u {current_time_str}")
-for report_time in REPORT_TIMES:
-    report_hour, report_minute = map(int, report_time.split(":"))
-    report_datetime = current_time.replace(hour=report_hour, minute=report_minute, second=0, microsecond=0)
-    if current_time > report_datetime:
-        sent_reports[report_time] = False  # Označi propušteni izvještaj za slanje
-
-# Glavna petlja
 print("Počinje praćenje...")
 while True:
     current_time = datetime.now()
     current_time_str = current_time.strftime("%H:%M")
     print(f"Provjera u {current_time_str}")
+
+    # Resetiraj sent_reports svaki dan
+    if current_time.date() != last_reset:
+        sent_reports = {time: False for time in REPORT_TIMES}
+        last_reset = current_time.date()
 
     for url in URLS:
         current_content = get_page_content(url)
@@ -111,7 +100,6 @@ while True:
             sent_reports[report_time] = True
             changes = []
 
-    # Spremi stanje na disk
     with open('previous_contents.json', 'w') as f:
         json.dump(previous_contents, f)
 
