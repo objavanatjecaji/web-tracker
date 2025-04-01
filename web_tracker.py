@@ -30,22 +30,31 @@ URLS = [
     "https://www.lag-izvor.eu/"
 ]
 EMAIL = "objava.natjecaji10@gmail.com"
-PASSWORD = "triqsjwgvpnhmzzt"  # Zamijeni s pravim App Passwordom
+PASSWORD = "triqsjwgvpnhmzzt"
 TO_EMAIL = "objava.natjecaji10@gmail.com"
 CHECK_INTERVAL = 1200
 REPORT_TIMES = ["12:05", "14:05", "18:05", "21:05"]
 
+print("Starting script...")
 try:
+    print("Trying to open previous_contents.json...")
     with open('previous_contents.json', 'r') as f:
         previous_contents = json.load(f)
+    print("Successfully loaded previous_contents.json")
 except FileNotFoundError:
+    print("previous_contents.json not found, initializing new...")
     previous_contents = {url: None for url in URLS}
+except Exception as e:
+    print(f"Error loading previous_contents.json: {str(e)}")
+
 changes = []
+# Reset sent_reports pri pokretanju
 sent_reports = {time: False for time in REPORT_TIMES}
 last_reset = datetime.now().date()
 
 def get_page_content(url):
     try:
+        print(f"Attempting to fetch {url}")
         response = requests.get(url)
         print(f"Provjera {url}: Status {response.status_code}")
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -60,6 +69,7 @@ def send_email(subject, body):
     msg['From'] = EMAIL
     msg['To'] = TO_EMAIL
     try:
+        print("Attempting to send email...")
         with smtplib.SMTP('smtp.gmail.com', 587) as server:
             server.starttls()
             server.login(EMAIL, PASSWORD)
@@ -71,6 +81,7 @@ def send_email(subject, body):
 print("Početak inicijalizacije...")
 for url in URLS:
     if previous_contents.get(url) is None:
+        print(f"Inicijaliziram {url}")
         previous_contents[url] = get_page_content(url)
 
 print("Počinje praćenje...")
@@ -79,10 +90,10 @@ while True:
     current_time_str = current_time.strftime("%H:%M")
     print(f"Provjera u {current_time_str}")
 
-    # Resetiraj sent_reports svaki dan
     if current_time.date() != last_reset:
         sent_reports = {time: False for time in REPORT_TIMES}
         last_reset = current_time.date()
+        print("Resetiram sent_reports za novi dan")
 
     for url in URLS:
         current_content = get_page_content(url)
@@ -100,7 +111,9 @@ while True:
             sent_reports[report_time] = True
             changes = []
 
+    print("Spremam previous_contents.json...")
     with open('previous_contents.json', 'w') as f:
         json.dump(previous_contents, f)
 
+    print(f"Čekam {CHECK_INTERVAL} sekundi...")
     time.sleep(CHECK_INTERVAL)
