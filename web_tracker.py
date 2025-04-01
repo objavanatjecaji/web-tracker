@@ -1,11 +1,13 @@
 import time
 from datetime import datetime
+import sys
 
-print("Starting background worker test...")
-print("Script initialized")
+print("Starting background worker test...", flush=True)
+print("Script initialized", flush=True)
 
 while True:
     current_time = datetime.now()
     current_time_str = current_time.strftime("%H:%M")
-    print(f"Running at {current_time_str} UTC")
-    time.sleep(60)  # Čekaj 1 minutu između ispisa
+    print(f"Running at {current_time_str} UTC", flush=True)
+    sys.stdout.flush()  # Osiguraj da se ispisi odmah pojave
+    time.sleep(60)
