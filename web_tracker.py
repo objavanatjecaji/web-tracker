@@ -4,6 +4,7 @@ import time
 import smtplib
 from email.mime.text import MIMEText
 from datetime import datetime
+from datetime import timedelta  # Dodan ovaj import
 import json
 
 URLS = [
@@ -33,7 +34,7 @@ EMAIL = "objava.natjecaji10@gmail.com"
 PASSWORD = "triqsjwgvpnhmzzt"
 TO_EMAIL = "objava.natjecaji10@gmail.com"
 CHECK_INTERVAL = 1200  # 20 minutes
-REPORT_TIMES = ["10:05", "12:05", "16:05", "19:05"]  # UTC times za CEST 12:05, 14:05, 18:05, 21:05
+REPORT_TIMES = ["12:05", "14:05", "18:05", "21:05"]  # CEST times
 
 print("Starting script...")
 try:
@@ -67,58 +68,4 @@ def send_email(subject, body):
     msg = MIMEText(body)
     msg['Subject'] = subject
     msg['From'] = EMAIL
-    msg['To'] = TO_EMAIL
-    try:
-        print(f"Sending email for {subject}...")
-        with smtplib.SMTP('smtp.gmail.com', 587) as server:
-            server.starttls()
-            server.login(EMAIL, PASSWORD)
-            server.send_message(msg)
-            print(f"E-mail poslan u {datetime.now().strftime('%H:%M')} UTC")
-    except Exception as e:
-        print(f"Greška pri slanju e-maila: {e}")
-
-print("Početak inicijalizacije...")
-for url in URLS:
-    if previous_contents.get(url) is None:
-        print(f"Initializing {url}...")
-        previous_contents[url] = get_page_content(url)
-
-print("Počinje praćenje...")
-while True:
-    current_time = datetime.now()  # UTC time
-    current_time_str = current_time.strftime("%H:%M")
-    print(f"Provjera u {current_time_str} UTC")
-
-    if current_time.date() != last_reset:
-        sent_reports = {time: False for time in REPORT_TIMES}
-        last_reset = current_time.date()
-        print("Resetiram sent_reports za novi dan")
-
-    for url in URLS:
-        print(f"Checking {url}...")
-        current_content = get_page_content(url)
-        if previous_contents[url] and current_content != previous_contents[url]:
-            change_time = (current_time + timedelta(hours=2)).strftime("%Y-%m-%d %H:%M:%S")  # CEST time for report
-            changes.append(f"Promjena na {url} u {change_time}:\nStari sadržaj: {previous_contents[url][:200]}\nNovi sadržaj: {current_content[:200]}\n")
-            previous_contents[url] = current_content
-
-    for report_time in REPORT_TIMES:
-        report_hour, report_minute = map(int, report_time.split(":"))
-        report_datetime = current_time.replace(hour=report_hour, minute=report_minute, second=0, microsecond=0)
-        if current_time >= report_datetime and not sent_reports[report_time]:
-            report = f"Dnevni sažetak promjena:\n\nBroj promjena: {len(changes)}\n\n" + ("\n".join(changes) if changes else "Nema promjena.")
-            send_email(f"Dnevni izvještaj o promjenama ({report_time} UTC)", report)
-            sent_reports[report_time] = True
-            changes = []
-
-    print("Saving previous_contents.json...")
-    try:
-        with open('previous_contents.json', 'w') as f:
-            json.dump(previous_contents, f)
-        print("Saved previous_contents.json successfully")
-    except Exception as e:
-        print(f"Error saving previous_contents.json: {str(e)}")
-
-    print(f"Waiting {CHECK_INTERVAL} seconds...")
-    time.sleep(CHECK_INTERVAL)
+    msg
