@@ -74,7 +74,7 @@ def send_email(subject, body):
             server.starttls()
             server.login(EMAIL, PASSWORD)
             server.send_message(msg)
-            print(f"E-mail poslan u {datetime.now().strftime('%H:%M')}")
+            print(f"E-mail poslan u {datetime.now().strftime('%H:%M')} UTC")
     except Exception as e:
         print(f"Greška pri slanju e-maila: {e}")
 
