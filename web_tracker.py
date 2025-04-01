@@ -43,9 +43,6 @@ try:
 except FileNotFoundError:
     previous_contents = {url: None for url in URLS}
     print("Initialized previous_contents.json")
-except Exception as e:
-    print(f"Error loading previous_contents.json: {str(e)}")
-    previous_contents = {url: None for url in URLS}
 
 changes = []
 sent_reports = {time: False for time in REPORT_TIMES}
@@ -111,10 +108,6 @@ while True:
             changes = []
     print("Slanje e-mailova završeno")
 
-    print("Spremam previous_contents.json...")
-    with open('previous_contents.json', 'w') as f:
-        json.dump(previous_contents, f)
-    print("Spremljeno previous_contents.json")
-
+    # Preskočimo spremanje previous_contents.json u petlji
     print(f"Čekam {CHECK_INTERVAL} sekundi...")
     time.sleep(CHECK_INTERVAL)
